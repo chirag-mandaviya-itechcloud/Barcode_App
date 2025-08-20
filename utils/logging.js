@@ -7,7 +7,7 @@ const winston = require('winston');
 let logsDir;
 let logFileName = 'pixel-barcode-app.log';
 try {
-    const logConfigPath = path.join(process.cwd(), 'logConfig.json');
+    const logConfigPath = path.join(process.cwd(), 'config', 'logConfig.json');
     if (fs.existsSync(logConfigPath)) {
         const logConfig = JSON.parse(fs.readFileSync(logConfigPath, 'utf-8'));
         logsDir = logConfig.path ? path.resolve(logConfig.path) : path.join(process.cwd(), 'barcode_app_logs');

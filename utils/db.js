@@ -6,7 +6,7 @@ import fs from 'fs';
 
 import { logger } from './logging.js';
 
-const configPath = path.join(process.cwd(), 'config.json');
+const configPath = path.join(process.cwd(), 'config', 'config.json');
 
 let sequelize = null;
 let models = {};

@@ -148,7 +148,7 @@ const fetchSearchedData = async (req, res) => {
 
 const generateCSVForBarcode = async (req, res) => {
     const { csvLocationForView } = getModels();
-    const downloadPathConfig = path.join(process.cwd(), 'downloadPath.json');
+    const downloadPathConfig = path.join(process.cwd(), 'config', 'downloadPath.json');
     const pathConfig = JSON.parse(await fs.promises.readFile(downloadPathConfig, 'utf-8'));
     try {
         const { data, quantity, viewName } = req.body;

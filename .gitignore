@@ -11,6 +11,5 @@ CSV/
 dist/
 
 license.lic
-*config*.json
-downloadPath.json
-port.json
+config/
+config.json

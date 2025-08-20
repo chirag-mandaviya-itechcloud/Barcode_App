@@ -5,7 +5,7 @@ const path = require('path');
 const os = require('os');
 
 async function getPortConfig() {
-    const portConfigPath = path.join(process.cwd(), 'port.json');
+    const portConfigPath = path.join(process.cwd(), 'config', 'port.json');
     let PORT = "1406";
     if (fs.existsSync(portConfigPath)) {
         try {
@@ -23,7 +23,7 @@ async function getPortConfig() {
 }
 
 async function getLogsConfig() {
-    const logConfigPath = path.join(process.cwd(), 'logConfig.json');
+    const logConfigPath = path.join(process.cwd(), 'config', 'logConfig.json');
     let logPath = path.join(os.homedir(), 'Downloads', 'Barcode App Logs');
     if (fs.existsSync(logConfigPath)) {
         try {
@@ -41,7 +41,7 @@ async function getLogsConfig() {
 
 async function getDefaultDownloadPath() {
     let downloadPath = path.join(os.homedir(), 'Downloads');
-    const downloadPathConfig = path.join(process.cwd(), 'downloadPath.json');
+    const downloadPathConfig = path.join(process.cwd(), 'config', 'downloadPath.json');
 
     if (fs.existsSync(downloadPathConfig)) {
         try {
