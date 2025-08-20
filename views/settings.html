@@ -26,15 +26,29 @@
 
         .port-section,
         .db-section,
-        .download-path-section {
+        .download-path-section,
+        .log-section {
             margin-bottom: 16px;
+            border: 1px solid rgb(220, 220, 220);
+            padding: 20px;
+            width: 45%;
+            border-radius: 5px;
+            background: rgb(220, 220, 220);
         }
 
         .heading {
             font-size: 20px;
-            margin-top: 25px;
             font-weight: bold;
             margin-bottom: 2px;
+            margin-top: 0px;
+        }
+
+        .container {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
         }
     </style>
 </head>
@@ -43,80 +57,99 @@
     <div>
         <h1>Pixel Barcode App</h1>
         <h2>App Settings</h2>
-        <div class="port-section">
-            <p class="heading">Port Configuration</p>
-            <form id="port-form" action="/save-port" method="post" style="margin-top: 10px; max-width: 500px;">
-                <div style="margin-bottom: 12px;">
-                    <label for="port">Port:</label><br>
-                    <input type="text" id="port" name="port" required style="width: 100%; padding: 8px;">
-                </div>
-                <button type="submit">Save Port</button>
-            </form>
-            <div id="port-message" style="margin-top:12px;"></div>
-        </div>
-
-        <div class="download-path-section">
-            <p class="heading">Download Path Configuration</p>
-            <!-- <form id="download-path-form" action="/save-download-path" method="post"
-                style="margin-top: 10px; max-width: 400px;"> -->
-            <div style="margin-top: 10px; max-width: 500px;">
-                <div style="margin-bottom: 12px;">
-                    <label for="downloadPath">Download Path:</label><br>
-                    <input type="text" id="downloadPath" name="downloadPath" required
-                        style="width: 100%; padding: 8px;">
-                    <button id="browseBtn" style="margin-top: 10px;">📁 Select</button>
-                </div>
-                <!-- <button type="submit">Save Download Path</button> -->
-            </div>
-            <div id="download-path-message" style="margin-top:12px;"></div>
-        </div>
-
-        <div class="db-section">
-            <p class="heading">Database Credentials Configuration</p>
-            <form id="db-form" action="/save-database-credentials" method="post"
-                style="margin-top: 10px; max-width: 500px;">
-                <!-- Added picklist -->
-                <div style="margin-bottom: 12px;">
-                    <label for="dbtype">Database Type:</label><br>
-                    <select id="dbtype" name="dbtype" required style="width: 100%; padding: 8px;">
-                        <option value="">-- Select Database --</option>
-                        <option value="postgres">PostgreSQL</option>
-                        <option value="mssql">MSSQL</option>
-                    </select>
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label for="dbname">Database Name:</label><br>
-                    <input type="text" id="dbname" name="dbname" required style="width: 100%; padding: 8px;">
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label for="host">Host:</label><br>
-                    <input type="text" id="host" name="host" required style="width: 100%; padding: 8px;">
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label for="username">Username:</label><br>
-                    <input type="text" id="username" name="username" required style="width: 100%; padding: 8px;">
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label for="password">Password:</label><br>
-                    <div style="position:relative;">
-                        <input type="password" id="password" name="password" required
-                            style="width: 100%; padding: 8px; padding-right: 48px; box-sizing: border-box;">
-                        <span onclick="togglePassword()"
-                            style="position:absolute; right: -36px; top:50%; transform:translateY(-50%); cursor:pointer; user-select:none; font-size: 20px; line-height: 1; background: #fff; border-radius: 50%; padding: 2px;"
-                            id="toggle-eye">👁️</span>
+        <div class="container">
+            <div class="port-section">
+                <p class="heading">Port Configuration</p>
+                <form id="port-form" action="/save-port" method="post" style="margin-top: 10px; max-width: 500px;">
+                    <div style="margin-bottom: 12px;">
+                        <label for="port">Port:</label><br>
+                        <input type="text" id="port" name="port" required style="width: 100%; padding: 8px;">
                     </div>
+                    <button type="submit">Save Port</button>
+                </form>
+                <div id="port-message" style="margin-top:12px;"></div>
+            </div>
+
+            <div class="download-path-section">
+                <p class="heading">Download Path Configuration</p>
+                <!-- <form id="download-path-form" action="/save-download-path" method="post"
+                style="margin-top: 10px; max-width: 400px;"> -->
+                <div style="margin-top: 10px; max-width: 500px;">
+                    <div style="margin-bottom: 12px;">
+                        <label for="downloadPath">Download Path:</label><br>
+                        <input type="text" id="downloadPath" name="downloadPath" required
+                            style="width: 100%; padding: 8px;">
+                        <button id="browseBtn" style="margin-top: 10px;">📁 Select</button>
+                    </div>
+                    <!-- <button type="submit">Save Download Path</button> -->
                 </div>
-                <!-- post field -->
-                <div id="portFieldWrapper" style="margin-bottom: 12px; display: none;">
-                    <label for="dbport">Port:</label><br>
-                    <input type="text" id="dbport" name="dbport" style="width: 100%; padding: 8px;"
-                        placeholder="e.g., 5432">
+                <div id="download-path-message" style="margin-top:12px;"></div>
+            </div>
+
+
+            <div class="db-section">
+                <p class="heading">Database Credentials Configuration</p>
+                <form id="db-form" action="/save-database-credentials" method="post"
+                    style="margin-top: 10px; max-width: 500px;">
+                    <!-- Added picklist -->
+                    <div style="margin-bottom: 12px;">
+                        <label for="dbtype">Database Type:</label><br>
+                        <select id="dbtype" name="dbtype" required style="width: 100%; padding: 8px;">
+                            <option value="">-- Select Database --</option>
+                            <option value="postgres">PostgreSQL</option>
+                            <option value="mssql">MSSQL</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label for="dbname">Database Name:</label><br>
+                        <input type="text" id="dbname" name="dbname" required style="width: 100%; padding: 8px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label for="host">Host:</label><br>
+                        <input type="text" id="host" name="host" required style="width: 100%; padding: 8px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label for="username">Username:</label><br>
+                        <input type="text" id="username" name="username" required style="width: 100%; padding: 8px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label for="password">Password:</label><br>
+                        <div style="position:relative;">
+                            <input type="password" id="password" name="password" required
+                                style="width: 100%; padding: 8px; padding-right: 48px; box-sizing: border-box;">
+                            <span onclick="togglePassword()"
+                                style="position:absolute; right: -36px; top:50%; transform:translateY(-50%); cursor:pointer; user-select:none; font-size: 20px; line-height: 1; background: #fff; border-radius: 50%; padding: 2px;"
+                                id="toggle-eye">👁️</span>
+                        </div>
+                    </div>
+                    <!-- post field -->
+                    <div id="portFieldWrapper" style="margin-bottom: 12px; display: none;">
+                        <label for="dbport">Port:</label><br>
+                        <input type="text" id="dbport" name="dbport" style="width: 100%; padding: 8px;"
+                            placeholder="e.g., 5432">
+                    </div>
+                    <button type="submit">Save Credentials</button>
+                </form>
+                <div id="db-message" style="margin-top:12px;"></div>
+
+            </div>
+
+            <div class="log-section">
+                <p class="heading">Log File Configuration</p>
+                <div style="margin-top: 10px; max-width: 500px;">
+                    <div style="margin-bottom: 12px;">
+                        <label for="logPath">Log File Path:</label><br>
+                        <input type="text" id="logPath" name="logPath" required style="width: 100%; padding: 8px;">
+                        <button id="browseLogBtn" style="margin-top: 10px;">📁 Select</button>
+                    </div>
+                    <!-- <button type="submit">Save Log Path</button> -->
                 </div>
-                <button type="submit">Save Credentials</button>
-            </form>
-            <div id="db-message" style="margin-top:12px;"></div>
-            <button type="button" onclick="location.href='/'" style="margin-top: 10px;">🏠︎ Home</button>
+                <div id="log-path-message" style="margin-top:12px;"></div>
+            </div>
         </div>
+
+        <button type="button" onclick="location.href='/'" style="margin-top: 10px;">🏠︎ Home</button>
+
         <script>
             const { ipcRenderer } = require('electron');
 
@@ -145,7 +178,7 @@
                 if (folderPath) {
                     document.getElementById('downloadPath').value = folderPath;
 
-                    // Optional: save it to the backend
+                    // Save it to the backend and show message
                     fetch('/save-download-path', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -153,15 +186,50 @@
                     })
                         .then(res => res.json())
                         .then(data => {
-                            console.log('Download path saved:', data);
+                            const msgDiv = document.getElementById('download-path-message');
+                            if (data.status === 'success') {
+                                msgDiv.innerHTML = `<div style='color: green;'>${data.message}</div>`;
+                            } else {
+                                msgDiv.innerHTML = `<div style='color: red;'>${data.message || 'Failed to save download path.'}</div>`;
+                            }
                         })
                         .catch(err => {
-                            console.error('Error saving download path:', err);
+                            const msgDiv = document.getElementById('download-path-message');
+                            msgDiv.innerHTML = `<div style='color: red;'>Error saving download path.</div>`;
                         });
                 }
             });
 
-            // Pre-fill the current download path
+            // Handle Browse button click
+            document.getElementById('browseLogBtn').addEventListener('click', async () => {
+                const folderPath = await ipcRenderer.invoke('open-folder-dialog');
+                if (folderPath) {
+                    document.getElementById('logPath').value = folderPath;
+
+                    // Save it to the backend and show message
+                    fetch('/save-log-path', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ logPath: folderPath })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            const msgDiv = document.getElementById('log-path-message');
+                            if (data.status === 'success') {
+                                msgDiv.innerHTML = `<div style='color: green;'>${data.message}</div>`;
+                            } else {
+                                msgDiv.innerHTML = `<div style='color: red;'>${data.message || 'Failed to save log path.'}</div>`;
+                            }
+                            restartApp(); // Restart app after saving log path
+                        })
+                        .catch(err => {
+                            const msgDiv = document.getElementById('log-path-message');
+                            msgDiv.innerHTML = `<div style='color: red;'>Error saving log path.</div>`;
+                        });
+                }
+            });
+
+            // Pre-fill the current log path
             window.onload = () => {
                 fetch('/get-download-path')
                     .then(res => res.json())
@@ -228,6 +296,18 @@
                         const downloadPathData = await downloadPathResponse.json();
                         if (downloadPathData && downloadPathData.exists) {
                             document.getElementById('downloadPath').value = downloadPathData.downloadPath || '';
+                        }
+                    }
+                } catch (err) {
+                    // If not found or error, leave form empty
+                }
+
+                try {
+                    const logPathResponse = await fetch('/get-log-path');
+                    if (logPathResponse.ok) {
+                        const logPathData = await logPathResponse.json();
+                        if (logPathData && logPathData.exists) {
+                            document.getElementById('logPath').value = logPathData.logPath || '';
                         }
                     }
                 } catch (err) {

@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { logger } = require('./utils/logging');
+const { logger, updateLogPath } = require('./utils/logging');
 const fileUpload = require('express-fileupload');
 const { getMachineInfo } = require('./utils/machineInfo');
 
@@ -288,6 +288,19 @@ app.get('/get-download-path', (req, res) => {
     }
 });
 
+app.get('/get-log-path', (req, res) => {
+    const logPathConfig = path.join(process.cwd(), 'logConfig.json');
+    if (!fs.existsSync(logPathConfig)) {
+        return res.json({ exists: false });
+    }
+    try {
+        const logPath = JSON.parse(fs.readFileSync(logPathConfig, 'utf-8'));
+        return res.json({ exists: true, logPath: logPath.path || '' });
+    } catch (e) {
+        return res.json({ exists: false });
+    }
+});
+
 app.post('/save-download-path', (req, res) => {
     const { downloadPath } = req.body;
     if (!downloadPath) {
@@ -307,6 +320,31 @@ app.post('/save-download-path', (req, res) => {
     fs.writeFileSync(downloadPathConfig, JSON.stringify(downloadPathData, null, 2));
     logger.info('Download path configuration saved successfully');
     return res.status(200).json({ status: 'success', message: 'Download path configuration saved successfully.' });
+});
+
+app.post('/save-log-path', (req, res) => {
+    const { logPath } = req.body;
+    if (!logPath) {
+        return res.status(400).send('Log path is required.');
+    }
+    // Save log path to logConfig.json
+    const logPathConfig = path.join(process.cwd(), 'logConfig.json');
+    let logPathData = {};
+    if (fs.existsSync(logPathConfig)) {
+        try {
+            logPathData = JSON.parse(fs.readFileSync(logPathConfig, 'utf-8'));
+        } catch (e) {
+            // Handle error
+        }
+    }
+    logPathData.path = logPath;
+    fs.writeFileSync(logPathConfig, JSON.stringify(logPathData, null, 2));
+    logger.info('Log path configuration saved successfully');
+    // updateLogPath(logPath);
+    res.status(200).json({ status: 'success', message: 'Log path configuration saved successfully. App will restart in 2 seconds.' });
+    setTimeout(() => {
+        process.exit(0);
+    }, 2000);
 });
 
 //routes

@@ -24,19 +24,18 @@ async function getPortConfig() {
 
 async function getLogsConfig() {
     const logConfigPath = path.join(process.cwd(), 'logConfig.json');
-    let LOG_LEVEL = "debug";
     let logPath = path.join(os.homedir(), 'Downloads', 'Barcode App Logs');
     if (fs.existsSync(logConfigPath)) {
         try {
             const logConfig = JSON.parse(await fs.promises.readFile(logConfigPath, 'utf-8'));
-            if (logConfig.level) {
-                LOG_LEVEL = logConfig.level;
+            if (logConfig.path) {
+                logPath = logConfig.path;
             }
         } catch (e) {
             // fallback to default LOG_LEVEL
         }
     } else {
-        await fs.promises.writeFile(logConfigPath, JSON.stringify({ level: LOG_LEVEL, path: logPath }, null, 2));
+        await fs.promises.writeFile(logConfigPath, JSON.stringify({ path: logPath }, null, 2));
     }
 }
 
