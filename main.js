@@ -38,7 +38,6 @@ async function getLogsConfig() {
     } else {
         await fs.promises.writeFile(logConfigPath, JSON.stringify({ level: LOG_LEVEL, path: logPath }, null, 2));
     }
-    return LOG_LEVEL;
 }
 
 async function getDefaultDownloadPath() {
