@@ -48,22 +48,4 @@ const logger = winston.createLogger({
     ]
 });
 
-function updateLogPath(newPath, newFileName = 'pixel-barcode-app.log') {
-    try {
-        const newLogFilePath = path.join(newPath, newFileName);
-        if (!fs.existsSync(newPath)) {
-            fs.mkdirSync(newPath, { recursive: true });
-        }
-        // Remove all transports and add new ones
-        logger.clear();
-        logger.add(new winston.transports.File({ filename: newLogFilePath }));
-        logger.add(new winston.transports.Console());
-    } catch (err) {
-        // Fallback: log error to console only
-        logger.clear();
-        logger.add(new winston.transports.Console());
-        console.error('Failed to update log path:', err);
-    }
-}
-
-module.exports = { logger, updateLogPath };
+module.exports = { logger };

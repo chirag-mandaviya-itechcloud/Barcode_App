@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { logger, updateLogPath } = require('./utils/logging');
+const { logger } = require('./utils/logging');
 const fileUpload = require('express-fileupload');
 const { getMachineInfo } = require('./utils/machineInfo');
 
