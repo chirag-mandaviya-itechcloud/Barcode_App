@@ -6,7 +6,12 @@ import fs from 'fs';
 
 import { logger } from './logging.js';
 
-const configPath = path.join(process.cwd(), 'config', 'config.json');
+const dataDir = process.env.BARCODE_APP_DATA || process.cwd();
+const configDir = path.join(dataDir, 'config');
+if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+}
+const configPath = path.join(configDir, 'config.json');
 
 let sequelize = null;
 let models = {};

@@ -7,18 +7,25 @@ const winston = require('winston');
 let logsDir;
 let logFileName = 'pixel-barcode-app.log';
 try {
-    const logConfigPath = path.join(process.cwd(), 'config', 'logConfig.json');
+    // Use user-writable directory for config folder
+    const dataDir = process.env.BARCODE_APP_DATA || process.cwd();
+    const configDir = path.join(dataDir, 'config');
+    if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir, { recursive: true });
+    }
+    const logConfigPath = path.join(configDir, 'logConfig.json');
     if (fs.existsSync(logConfigPath)) {
         const logConfig = JSON.parse(fs.readFileSync(logConfigPath, 'utf-8'));
-        logsDir = logConfig.path ? path.resolve(logConfig.path) : path.join(process.cwd(), 'barcode_app_logs');
+        logsDir = logConfig.path ? path.resolve(logConfig.path) : path.join(dataDir, 'barcode_app_logs');
         if (logConfig.fileName) {
             logFileName = logConfig.fileName;
         }
     } else {
-        logsDir = path.join(process.cwd(), 'barcode_app_logs');
+        logsDir = path.join(dataDir, 'barcode_app_logs');
     }
 } catch (e) {
-    logsDir = path.join(process.cwd(), 'barcode_app_logs');
+    const dataDir = process.env.BARCODE_APP_DATA || process.cwd();
+    logsDir = path.join(dataDir, 'barcode_app_logs');
 }
 if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });

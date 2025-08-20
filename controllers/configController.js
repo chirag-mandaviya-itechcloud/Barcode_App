@@ -148,7 +148,12 @@ const fetchSearchedData = async (req, res) => {
 
 const generateCSVForBarcode = async (req, res) => {
     const { csvLocationForView } = getModels();
-    const downloadPathConfig = path.join(process.cwd(), 'config', 'downloadPath.json');
+    const dataDir = process.env.BARCODE_APP_DATA || process.cwd();
+    const configDir = path.join(dataDir, 'config');
+    if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir, { recursive: true });
+    }
+    const downloadPathConfig = path.join(configDir, 'downloadPath.json');
     const pathConfig = JSON.parse(await fs.promises.readFile(downloadPathConfig, 'utf-8'));
     try {
         const { data, quantity, viewName } = req.body;

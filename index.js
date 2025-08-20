@@ -16,11 +16,16 @@ const { validateUploadedLicenseFile, encryptData, validateLicense, getExpiryDate
 const configRouter = require('./routes/configRoutes');
 const viewRouter = require('./routes/viewRoutes');
 
-const configPath = path.join(process.cwd(), 'config', 'config.json');
+const dataDir = process.env.BARCODE_APP_DATA || process.cwd();
+const configDir = path.join(dataDir, 'config');
+if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+}
+const configPath = path.join(configDir, 'config.json');
 const licensePath = path.join(process.cwd(), 'license.lic');
 
 let PORT = "1406";
-const portConfigPath = path.join(process.cwd(), 'config', 'port.json');
+const portConfigPath = path.join(configDir, 'port.json');
 if (fs.existsSync(portConfigPath)) {
     try {
         const portConfig = JSON.parse(fs.readFileSync(portConfigPath, 'utf-8'));
@@ -175,7 +180,7 @@ app.get('/machine-info', (req, res) => {
 
 // Route to get database credentials from config.json
 app.get('/get-database-credentials', (req, res) => {
-    const configPath = path.join(process.cwd(), 'config', 'config.json');
+    const configPath = path.join(configDir, 'config.json');
     if (!fs.existsSync(configPath)) {
         return res.json({ exists: false });
     }
@@ -211,7 +216,7 @@ app.post('/save-database-credentials', async (req, res) => {
         return res.status(400).send('All fields are required.');
     }
     // Save credentials to config.json
-    const configPath = path.join(process.cwd(), 'config', 'config.json');
+    const configPath = path.join(configDir, 'config.json');
     let config = {};
     if (fs.existsSync(configPath)) {
         try {
@@ -247,7 +252,7 @@ app.post('/save-port', (req, res) => {
         return res.status(400).send('Port is required.');
     }
     // Save port to port.json
-    const portConfigPath = path.join(process.cwd(), 'config', 'port.json');
+    const portConfigPath = path.join(configDir, 'port.json');
     let portConfig = {};
     if (fs.existsSync(portConfigPath)) {
         try {
@@ -263,7 +268,7 @@ app.post('/save-port', (req, res) => {
 });
 
 app.get('/get-port', (req, res) => {
-    const portConfigPath = path.join(process.cwd(), 'config', 'port.json');
+    const portConfigPath = path.join(configDir, 'port.json');
     if (!fs.existsSync(portConfigPath)) {
         return res.json({ exists: false });
     }
@@ -276,7 +281,7 @@ app.get('/get-port', (req, res) => {
 });
 
 app.get('/get-download-path', (req, res) => {
-    const downloadPathConfig = path.join(process.cwd(), 'config', 'downloadPath.json');
+    const downloadPathConfig = path.join(configDir, 'downloadPath.json');
     if (!fs.existsSync(downloadPathConfig)) {
         return res.json({ exists: false });
     }
@@ -289,7 +294,7 @@ app.get('/get-download-path', (req, res) => {
 });
 
 app.get('/get-log-path', (req, res) => {
-    const logPathConfig = path.join(process.cwd(), 'config', 'logConfig.json');
+    const logPathConfig = path.join(configDir, 'logConfig.json');
     if (!fs.existsSync(logPathConfig)) {
         return res.json({ exists: false });
     }
@@ -307,7 +312,7 @@ app.post('/save-download-path', (req, res) => {
         return res.status(400).send('Download path is required.');
     }
     // Save download path to downloadPath.json
-    const downloadPathConfig = path.join(process.cwd(), 'config', 'downloadPath.json');
+    const downloadPathConfig = path.join(configDir, 'downloadPath.json');
     let downloadPathData = {};
     if (fs.existsSync(downloadPathConfig)) {
         try {
@@ -328,7 +333,7 @@ app.post('/save-log-path', (req, res) => {
         return res.status(400).send('Log path is required.');
     }
     // Save log path to logConfig.json
-    const logPathConfig = path.join(process.cwd(), 'config', 'logConfig.json');
+    const logPathConfig = path.join(configDir, 'logConfig.json');
     let logPathData = {};
     if (fs.existsSync(logPathConfig)) {
         try {

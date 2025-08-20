@@ -5,7 +5,12 @@ const path = require('path');
 const os = require('os');
 
 async function getPortConfig() {
-    const portConfigPath = path.join(process.cwd(), 'config', 'port.json');
+    const dataDir = process.env.BARCODE_APP_DATA || process.cwd();
+    const configDir = path.join(dataDir, 'config');
+    if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir, { recursive: true });
+    }
+    const portConfigPath = path.join(configDir, 'port.json');
     let PORT = "1406";
     if (fs.existsSync(portConfigPath)) {
         try {
@@ -23,7 +28,12 @@ async function getPortConfig() {
 }
 
 async function getLogsConfig() {
-    const logConfigPath = path.join(process.cwd(), 'config', 'logConfig.json');
+    const dataDir = process.env.BARCODE_APP_DATA || process.cwd();
+    const configDir = path.join(dataDir, 'config');
+    if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir, { recursive: true });
+    }
+    const logConfigPath = path.join(configDir, 'logConfig.json');
     let logPath = path.join(os.homedir(), 'Downloads', 'Barcode App Logs');
     if (fs.existsSync(logConfigPath)) {
         try {
@@ -40,8 +50,13 @@ async function getLogsConfig() {
 }
 
 async function getDefaultDownloadPath() {
+    const dataDir = process.env.BARCODE_APP_DATA || process.cwd();
+    const configDir = path.join(dataDir, 'config');
+    if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir, { recursive: true });
+    }
     let downloadPath = path.join(os.homedir(), 'Downloads');
-    const downloadPathConfig = path.join(process.cwd(), 'config', 'downloadPath.json');
+    const downloadPathConfig = path.join(configDir, 'downloadPath.json');
 
     if (fs.existsSync(downloadPathConfig)) {
         try {
