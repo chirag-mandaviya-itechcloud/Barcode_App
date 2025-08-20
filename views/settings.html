@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Database Credentials | Pixel Barcode App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        span {
+            font-weight: bold;
+        }
+
+        .port-section,
+        .db-section,
+        .download-path-section {
+            margin-bottom: 16px;
+        }
+
+        .heading {
+            font-size: 20px;
+            margin-top: 25px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1>Pixel Barcode App</h1>
+        <h2>App Settings</h2>
+        <div class="port-section">
+            <p class="heading">Port Configuration</p>
+            <form id="port-form" action="/save-port" method="post" style="margin-top: 10px; max-width: 500px;">
+                <div style="margin-bottom: 12px;">
+                    <label for="port">Port:</label><br>
+                    <input type="text" id="port" name="port" required style="width: 100%; padding: 8px;">
+                </div>
+                <button type="submit">Save Port</button>
+            </form>
+            <div id="port-message" style="margin-top:12px;"></div>
+        </div>
+
+        <div class="download-path-section">
+            <p class="heading">Download Path Configuration</p>
+            <!-- <form id="download-path-form" action="/save-download-path" method="post"
+                style="margin-top: 10px; max-width: 400px;"> -->
+            <div style="margin-top: 10px; max-width: 500px;">
+                <div style="margin-bottom: 12px;">
+                    <label for="downloadPath">Download Path:</label><br>
+                    <input type="text" id="downloadPath" name="downloadPath" required
+                        style="width: 100%; padding: 8px;">
+                    <button id="browseBtn" style="margin-top: 10px;">📁 Select</button>
+                </div>
+                <!-- <button type="submit">Save Download Path</button> -->
+            </div>
+            <div id="download-path-message" style="margin-top:12px;"></div>
+        </div>
+
+        <div class="db-section">
+            <p class="heading">Database Credentials Configuration</p>
+            <form id="db-form" action="/save-database-credentials" method="post"
+                style="margin-top: 10px; max-width: 500px;">
+                <!-- Added picklist -->
+                <div style="margin-bottom: 12px;">
+                    <label for="dbtype">Database Type:</label><br>
+                    <select id="dbtype" name="dbtype" required style="width: 100%; padding: 8px;">
+                        <option value="">-- Select Database --</option>
+                        <option value="postgres">PostgreSQL</option>
+                        <option value="mssql">MSSQL</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label for="dbname">Database Name:</label><br>
+                    <input type="text" id="dbname" name="dbname" required style="width: 100%; padding: 8px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label for="host">Host:</label><br>
+                    <input type="text" id="host" name="host" required style="width: 100%; padding: 8px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label for="username">Username:</label><br>
+                    <input type="text" id="username" name="username" required style="width: 100%; padding: 8px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label for="password">Password:</label><br>
+                    <div style="position:relative;">
+                        <input type="password" id="password" name="password" required
+                            style="width: 100%; padding: 8px; padding-right: 48px; box-sizing: border-box;">
+                        <span onclick="togglePassword()"
+                            style="position:absolute; right: -36px; top:50%; transform:translateY(-50%); cursor:pointer; user-select:none; font-size: 20px; line-height: 1; background: #fff; border-radius: 50%; padding: 2px;"
+                            id="toggle-eye">👁️</span>
+                    </div>
+                </div>
+                <!-- post field -->
+                <div id="portFieldWrapper" style="margin-bottom: 12px; display: none;">
+                    <label for="dbport">Port:</label><br>
+                    <input type="text" id="dbport" name="dbport" style="width: 100%; padding: 8px;"
+                        placeholder="e.g., 5432">
+                </div>
+                <button type="submit">Save Credentials</button>
+            </form>
+            <div id="db-message" style="margin-top:12px;"></div>
+            <button type="button" onclick="location.href='/'" style="margin-top: 10px;">🏠︎ Home</button>
+        </div>
+        <script>
+            const { ipcRenderer } = require('electron');
+
+            function restartApp() {
+                setTimeout(() => {
+                    ipcRenderer.send('restart-app');
+                }, 2000); // 2 seconds delay
+            }
+
+            document.getElementById('dbtype').addEventListener('change', function () {
+                const selected = this.value;
+                const portField = document.getElementById('portFieldWrapper');
+
+                if (selected === 'postgres') {
+                    portField.style.display = 'block';
+                    document.getElementById('dbport').required = true;
+                } else {
+                    portField.style.display = 'none';
+                    document.getElementById('dbport').required = false;
+                }
+            });
+
+            // Handle Browse button click
+            document.getElementById('browseBtn').addEventListener('click', async () => {
+                const folderPath = await ipcRenderer.invoke('open-folder-dialog');
+                if (folderPath) {
+                    document.getElementById('downloadPath').value = folderPath;
+
+                    // Optional: save it to the backend
+                    fetch('/save-download-path', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ downloadPath: folderPath })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log('Download path saved:', data);
+                        })
+                        .catch(err => {
+                            console.error('Error saving download path:', err);
+                        });
+                }
+            });
+
+            // Pre-fill the current download path
+            window.onload = () => {
+                fetch('/get-download-path')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.exists) {
+                            document.getElementById('downloadPath').value = data.downloadPath;
+                        }
+                    });
+            };
+
+
+            function togglePassword() {
+                const pwd = document.getElementById('password');
+                const eye = document.getElementById('toggle-eye');
+                if (pwd.type === 'password') {
+                    pwd.type = 'text';
+                    eye.textContent = '🙈';
+                } else {
+                    pwd.type = 'password';
+                    eye.textContent = '👁️';
+                }
+            }
+
+            // Prefill form if config.json exists
+            window.addEventListener('DOMContentLoaded', async function () {
+                try {
+                    const response = await fetch('/get-database-credentials');
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.exists) {
+                            document.getElementById('dbname').value = data.dbname || '';
+                            document.getElementById('host').value = data.host || '';
+                            document.getElementById('username').value = data.username || '';
+                            document.getElementById('password').value = data.password || '';
+                            document.getElementById('dbtype').value = data.dbtype || '';
+                            document.getElementById('dbport').value = data.dbport || '';
+
+                            if (data.dbtype === 'postgres') {
+                                const portField = document.getElementById('portFieldWrapper');
+                                portField.style.display = 'block';
+                                document.getElementById('dbport').required = true;
+                            }
+                        }
+                    }
+                } catch (err) {
+                    // If not found or error, leave form empty
+                }
+
+                try {
+                    const portResponse = await fetch('/get-port');
+                    if (portResponse.ok) {
+                        const portData = await portResponse.json();
+                        if (portData && portData.port) {
+                            document.getElementById('port').value = portData.port;
+                        }
+                    }
+                } catch (err) {
+                    // If not found or error, leave form empty
+                }
+
+                try {
+                    const downloadPathResponse = await fetch('/get-download-path');
+                    if (downloadPathResponse.ok) {
+                        const downloadPathData = await downloadPathResponse.json();
+                        if (downloadPathData && downloadPathData.exists) {
+                            document.getElementById('downloadPath').value = downloadPathData.downloadPath || '';
+                        }
+                    }
+                } catch (err) {
+                    // If not found or error, leave form empty
+                }
+            });
+
+            // Handle form submit via AJAX to show response without reload
+            document.getElementById('db-form').onsubmit = async function (e) {
+                e.preventDefault();
+                const form = e.target;
+                const formData = new FormData(form);
+                const messageDiv = document.getElementById('db-message');
+                messageDiv.innerText = 'Saving...';
+                try {
+                    const response = await fetch('/save-database-credentials', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const text = await response.json();
+                    messageDiv.innerHTML = `<div style="color: green;">${text.message}</div>`;
+                } catch (err) {
+                    messageDiv.innerHTML = `<div style="color: red;">Failed to save credentials.</div>`;
+                }
+            };
+
+            // Handle port form submit via AJAX
+            document.getElementById('port-form').onsubmit = async function (e) {
+                e.preventDefault();
+                const form = e.target;
+                const formData = new FormData(form);
+                const messageDiv = document.getElementById('port-message');
+                messageDiv.innerText = 'Saving...';
+                try {
+                    const response = await fetch('/save-port', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const text = await response.json();
+                    messageDiv.innerHTML = `<div style="color: green;">${text.message}</div>`;
+                    restartApp(); // Restart app after saving port
+                } catch (err) {
+                    messageDiv.innerHTML = `<div style="color: red;">Failed to save port.</div>`;
+                }
+            };
+
+            // Handle download path form submit via AJAX
+            // document.getElementById('download-path-form').onsubmit = async function (e) {
+            // e.preventDefault();
+            // const form = e.target;
+            // const formData = new FormData(form);
+            //     const messageDiv = document.getElementById('download-path-message');
+            //     messageDiv.innerText = 'Saving...';
+            //     try {
+            //         const response = await fetch('/save-download-path', {
+            //             method: 'POST',
+            //             body: formData
+            //         });
+            //         const text = await response.json();
+            //         messageDiv.innerHTML = `<div style="color: green;">${text.message}</div>`;
+            //     } catch (err) {
+            //         messageDiv.innerHTML = `<div style="color: red;">Failed to save download path.</div>`;
+            //     }
+            // };
+        </script>
+</body>
+
+</html>

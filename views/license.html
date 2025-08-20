@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>License Required</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        #machine-info {
+            background: #f4f4f4;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            overflow-wrap: break-word;
+
+        }
+
+        #upload-section {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 16px;
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .copy-btn {
+            margin-left: 8px;
+            padding: 2px 8px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid #0078D4;
+            background: #e6f0fa;
+            border-radius: 4px;
+            color: #0078D4;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Pixel Barcode App</h1>
+    <h2>License Not Found</h2>
+    <div id="machine-info">Loading machine info...</div>
+    <div id="upload-section">
+        <input type="file" id="license-upload" accept=".json,.lic" />
+        <button id="upload-btn">Upload License</button>
+    </div>
+    <div id="message"></div>
+    <!-- <button type="button" onclick="location.href='/'" style="margin-top:10px;">🏠︎ Home</button> -->
+    <script>
+        // Fetch and display machine info
+        fetch('/machine-info')
+            .then(res => res.json())
+            .then(info => {
+                document.getElementById('machine-info').innerHTML =
+                    `<b>Key:</b> <span id="machine-key" style="color:#25a">${info}</span>
+                     <button class="copy-btn" onclick="copyMachineKey()">Copy</button>`;
+            })
+            .catch(() => {
+                document.getElementById('machine-info').innerText = 'Could not load machine info.';
+            });
+
+        function copyMachineKey() {
+            const keyText = document.getElementById('machine-key').innerText;
+            navigator.clipboard.writeText(keyText)
+                .then(() => {
+                    alert('Key copied to clipboard!');
+                })
+                .catch(() => {
+                    alert('Failed to copy key.');
+                });
+        }
+        document.getElementById('upload-btn').onclick = async () => {
+            const fileInput = document.getElementById('license-upload');
+            const messageDiv = document.getElementById('message');
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('license', fileInput.files[0]);
+                messageDiv.innerText = 'Uploading...';
+                try {
+                    const response = await fetch('/license-upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    messageDiv.innerHTML = `<div style="padding: 2px; color: blue;">${result.message}</div> <div style="padding: 2px; color: blue;">Redirecting to the application...</div>`;
+                    if (result.status === 'success') {
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 2000); // Redirect after 2 seconds
+                    }
+                } catch (err) {
+                    messageDiv.innerHTML = '<div style="padding: 2px; color: red;">Upload failed.</div>';
+                }
+            } else {
+                messageDiv.innerHTML = '<div style="padding: 2px; color: red;">Please select a license file.</div>';
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pixelligent barcode search</title>
+    <link rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background-color: #f8f9fa;
+        }
+
+        .form-wrapper {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 2rem;
+            background-color: #fff;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            appearance: none;
+            background: white;
+        }
+
+        .form-group .fa-search {
+            position: absolute;
+            right: 1rem;
+            top: 2.4rem;
+            pointer-events: none;
+            color: #888;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-clear {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-search {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .magnifying-glass {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 2px;
+        }
+
+        .picklist {
+            width: 592px;
+            height: 25px;
+            margin-bottom: 10px;
+        }
+
+        #suggestions {
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+            /* Hidden by default */
+            position: absolute;
+            background: white;
+            width: 200px;
+        }
+
+        #suggestions div {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        #suggestions div:hover {
+            background-color: #f0f0f0;
+        }
+
+        .view-header {
+            text-align: center;
+        }
+
+        .home-button {
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .home-button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #settings-icon {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            background-color: rgb(206, 206, 206);
+            border-radius: 20%;
+            padding: 5px 4px 3px 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="show-license"></div>
+    <a href="/settings" id="settings-icon" title="Settings">
+        <svg viewBox="0 0 24 24" height="30" width="30" xmlns="http://www.w3.org/2000/svg" fill="#000000">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+                <g>
+                    <path fill="none" d="M0 0h24v24H0z"></path>
+                    <path
+                        d="M9.954 2.21a9.99 9.99 0 0 1 4.091-.002A3.993 3.993 0 0 0 16 5.07a3.993 3.993 0 0 0 3.457.261A9.99 9.99 0 0 1 21.5 8.876 3.993 3.993 0 0 0 20 12c0 1.264.586 2.391 1.502 3.124a10.043 10.043 0 0 1-2.046 3.543 3.993 3.993 0 0 0-3.456.261 3.993 3.993 0 0 0-1.954 2.86 9.99 9.99 0 0 1-4.091.004A3.993 3.993 0 0 0 8 18.927a3.993 3.993 0 0 0-3.457-.26A9.99 9.99 0 0 1 2.5 15.121 3.993 3.993 0 0 0 4 11.999a3.993 3.993 0 0 0-1.502-3.124 10.043 10.043 0 0 1 2.046-3.543A3.993 3.993 0 0 0 8 5.071a3.993 3.993 0 0 0 1.954-2.86zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z">
+                    </path>
+                </g>
+            </g>
+        </svg>
+    </a>
+    <div class="view-header">
+        <h1>Pixel Barcode App</h1>
+    </div>
+    <form>
+        <div class="form-wrapper">
+            <div class="form-group" id="form-group">
+                <label for="view-list" id="view-list">Select Label</label>
+                <input class="picklist" type="text" id="view" name="View" placeholder="Select a Label..." readonly>
+                <span class="magnifying-glass" id="viewIcon">🔍</span>
+            </div>
+
+            <div class="button-group">
+                <button type="reset" class="btn btn-clear" onclick="resetData();">Clear</button>
+                <button type="button" class="btn btn-search" onclick="fetchData();">Search</button>
+            </div>
+        </div>
+        </div>
+    </form>
+
+    <div id="results-container" style="margin-top: 2rem;"></div>
+
+    <!-- <div class="home-button-container">
+        <button onclick="location.href='/'" class="home-button">🏠︎ Home</button>
+    </div> -->
+</body>
+
+</html>
+
+<script>
+    let views = [];
+    let fields = [];
+    let filters = {};
+    let viewName;
+    let quantity = 0;
+
+    function handlePickListChanges(value, eleId) {
+        if (eleId === 'view') {
+            viewName = value;
+            fetch(`/config/fetchFields?viewName=${value}`)
+                .then(res => res.json())
+                .then(j => {
+                    fields = [...j.data];
+                    const targetDiv = document.getElementById('form-group');
+
+                    const existingDiv = document.getElementById('insiderDiv');
+                    if (existingDiv != null) {
+                        existingDiv.remove();
+                    }
+
+                    const insiderdiv = document.createElement('div');
+                    insiderdiv.id = 'insiderDiv';
+
+                    fields.forEach(async (i, inx) => {
+                        filters[i.value] = null;
+
+                        if (inx === 0) {
+                            const label = document.createElement('label');
+                            label.setAttribute('for', `${i.value}`);
+                            label.textContent = `Select ${i.label}`;
+
+                            const input = document.createElement('input');
+                            input.className = 'picklist';
+                            input.type = 'text';
+                            input.id = i.value;
+                            input.name = i.value;
+                            input.placeholder = `Type to search ${i.label}...`;
+                            input.autocomplete = 'off';
+
+                            const suggestionsBox = document.createElement('div');
+                            suggestionsBox.id = `${i.value}-suggestions`;
+                            suggestionsBox.style.border = '1px solid #ccc';
+                            suggestionsBox.style.maxHeight = '150px';
+                            suggestionsBox.style.overflowY = 'auto';
+                            suggestionsBox.style.display = 'none';
+                            suggestionsBox.style.background = 'white';
+                            suggestionsBox.style.position = 'absolute';
+                            suggestionsBox.style.zIndex = '1000';
+                            suggestionsBox.style.width = '386px';  // match input width
+                            suggestionsBox.style.marginTop = '5px';
+
+                            insiderdiv.appendChild(label);
+                            insiderdiv.appendChild(input);
+                            insiderdiv.appendChild(suggestionsBox);
+
+                            let options = []; // Save fetched options
+
+                            // Fetch options initially
+                            fetch(`/config/fetchFieldOptions?viewName=${viewName}&fieldName=${i.value}&filters=${JSON.stringify(filters)}`)
+                                .then(res => res.json())
+                                .then(j => {
+                                    options = [...j.data];
+                                });
+
+                            input.addEventListener('input', function () {
+                                const searchTerm = input.value.toLowerCase();
+                                suggestionsBox.innerHTML = '';
+
+                                if (searchTerm.length === 0) {
+                                    suggestionsBox.style.display = 'none';
+                                    return;
+                                }
+
+                                if (options.length > 0) {
+                                    const matchedOptions = options.filter(opt => String(opt.label).toLowerCase().includes(searchTerm));
+
+                                    if (matchedOptions.length > 0) {
+                                        matchedOptions.forEach(opt => {
+                                            const div = document.createElement('div');
+                                            div.textContent = opt.label;
+                                            div.style.padding = '8px';
+                                            div.style.cursor = 'pointer';
+
+                                            div.addEventListener('click', () => {
+                                                input.value = opt.value; // or opt.label, depending on what you want
+                                                filters[i.value] = opt.value;
+                                                suggestionsBox.style.display = 'none';
+                                                handlePickListChanges(opt.value, i.value);
+                                            });
+
+                                            div.addEventListener('mouseover', () => {
+                                                div.style.backgroundColor = '#f0f0f0';
+                                            });
+                                            div.addEventListener('mouseout', () => {
+                                                div.style.backgroundColor = '#fff';
+                                            });
+
+                                            suggestionsBox.appendChild(div);
+                                        });
+                                        suggestionsBox.style.display = 'block';
+                                    } else {
+                                        suggestionsBox.style.display = 'none';
+                                    }
+                                }
+                            });
+
+                            // Hide suggestions when clicking outside
+                            document.addEventListener('click', function (event) {
+                                if (!insiderdiv.contains(event.target)) {
+                                    suggestionsBox.style.display = 'none';
+                                }
+                            });
+                        }
+                        else {
+                            const label = document.createElement('label');
+                            label.setAttribute('for', `${i.value}-list`);
+                            label.textContent = `Select ${i.label}`;
+
+                            // Create input
+                            const input = document.createElement('input');
+                            input.className = 'picklist';
+                            input.type = 'text';
+                            input.id = i.value;
+                            input.name = i.value;
+                            input.placeholder = `Select a ${i.label}...`;
+                            input.readOnly = true;
+
+                            // Create magnifying glass span
+                            const icon = document.createElement('span');
+                            icon.className = 'magnifying-glass';
+                            icon.id = `${i.value}Icon`;
+                            icon.textContent = '🔍';
+
+                            // Append elements to the target div
+                            insiderdiv.appendChild(label);
+                            insiderdiv.appendChild(input);
+                            insiderdiv.appendChild(icon);
+
+                            fetchFieldValues(i.value, `${i.value}Icon`, i.value);
+                        }
+                    });
+
+                    const label = document.createElement('label');
+                    label.setAttribute('for', `quantity-list`);
+                    label.textContent = `Select Quantity`;
+
+                    const input = document.createElement('input');
+                    input.className = 'picklist';
+                    input.type = 'number';
+                    input.onchange = (e) => { quantity = +e.target.value; }
+                    input.id = 'quantity';
+                    input.name = 'quantity';
+                    input.placeholder = `Select a quantity...`;
+
+                    insiderdiv.appendChild(label);
+                    insiderdiv.appendChild(input);
+
+                    targetDiv.appendChild(insiderdiv);
+                });
+        }
+        else {
+            filters[eleId] = value;
+            const totalLength = fields.length;
+            const index = fields.findIndex(i => i.value === eleId);
+
+            if (index !== -1 && index < totalLength - 1) {
+                eleId = fields[index + 1].value;
+                fetchFieldValues(eleId, `${eleId}Icon`, eleId);
+            }
+
+            console.log(filters);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchViews();
+        loadLicenseInfo();
+    });
+
+    const handleOpenPopup = (eleId, iconId, records) => {
+        const input = document.getElementById(eleId);
+        const icon = document.getElementById(iconId);
+        let popupWindow;
+
+        popupWindow = window.open("", "popup", "width=300,height=400");
+
+        popupWindow.document.write(`
+        <html>
+        <head>
+            <title>Select a Record</title>
+            <style>
+            body { font-family: Arial, sans-serif; padding: 10px; }
+            .suggestion-item { padding: 8px; cursor: pointer; border: 1px solid #ddd; margin: 5px 0; }
+            .suggestion-item:hover { background-color: #f0f0f0; }
+            </style>
+        </head>
+        <body>
+            <h3>Select a Record</h3>
+            <div id="suggestions"></div>
+            <script>
+            const records = ${JSON.stringify(records)};
+            const suggestionsBox = document.getElementById("suggestions");
+
+            // Function to show records as options
+            records.forEach(record => {
+                const item = document.createElement("div");
+                item.classList.add("suggestion-item");
+                item.textContent = record.label;
+
+                // Handle selection of an item
+                item.addEventListener("click", function() {
+                    window.opener.document.getElementById("${eleId}").value = record.value;
+                    window.opener.handlePickListChanges(record.value, "${eleId}");
+                    window.close();
+                });
+
+                suggestionsBox.appendChild(item);
+            });
+            <\/script>
+        </body>
+        </html>
+        `);
+        popupWindow.document.close();
+    }
+
+    const fetchViews = () => {
+        fetch('/config/fetchViews')
+            .then(res => res.json())
+            .then(i => {
+                views = [...i.data];
+                const viewIcon = document.getElementById('viewIcon');
+                viewIcon.addEventListener('click', () => handleOpenPopup('view', 'viewIcon', views));
+            });
+    }
+
+    const fetchFieldValues = (eleId, iconId, fieldName) => {
+        fetch(`/config/fetchFieldOptions?viewName=${viewName}&fieldName=${fieldName}&filters=${JSON.stringify(filters)}`)
+            .then(res => res.json())
+            .then(i => {
+                const iconDiv = document.getElementById(iconId);
+                iconDiv.onclick = () => handleOpenPopup(eleId, iconId, [...i.data]);
+            });
+    }
+
+    const fetchData = () => {
+        fetch(`/config/fetchData?viewName=${viewName}&filters=${JSON.stringify(filters)}`)
+            .then(res => res.json())
+            .then(i => {
+                renderTable(i.columns, i.rows);
+            });
+    }
+
+    const renderTable = (columns, rows) => {
+        const container = document.getElementById("results-container");
+        container.innerHTML = ""; // Clear previous content
+
+        const table = document.createElement("table");
+        table.style.width = "100%";
+        table.style.borderCollapse = "collapse";
+
+        // Create header
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+
+        columns.forEach(col => {
+            const th = document.createElement("th");
+            th.textContent = col.label;
+            th.style.border = "1px solid #ccc";
+            th.style.padding = "0.5rem";
+            th.style.backgroundColor = "#e9ecef";
+            th.style.textAlign = "left";
+            headerRow.appendChild(th);
+        });
+
+        const th2 = document.createElement("th");
+        th2.textContent = 'Generate Barcode';
+        th2.style.border = "1px solid #ccc";
+        th2.style.padding = "0.5rem";
+        th2.style.backgroundColor = "#e9ecef";
+        th2.style.textAlign = "left";
+        headerRow.appendChild(th2);
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // Create body
+        const tbody = document.createElement("tbody");
+
+        rows.forEach(row => {
+            const tr = document.createElement("tr");
+            columns.forEach(col => {
+                const td = document.createElement("td");
+                td.textContent = row[col.value];
+                td.style.border = "1px solid #ccc";
+                td.style.padding = "0.5rem";
+                tr.appendChild(td);
+            });
+
+            const td2 = document.createElement("td");
+            td2.style.border = "1px solid #ccc";
+            td2.style.padding = "0.5rem";
+
+            const button = document.createElement('button');
+            button.innerHTML = '📁';
+            button.name = JSON.stringify(row);
+            button.onclick = (e) => handleBarcodeGenerate(e);
+            button.style.backgroundColor = '#0078D4';
+            button.style.color = 'white';
+            button.style.border = 'none';
+            button.style.borderRadius = '10px';
+            button.style.width = '75px';
+            button.style.height = '45px';
+            button.style.fontSize = '14px';
+            button.style.cursor = 'pointer';
+
+            td2.appendChild(button);
+            tr.appendChild(td2);
+            tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+        container.appendChild(table);
+    };
+
+    const handleBarcodeGenerate = (e) => {
+        // Download CSV file from server
+        fetch(`/config/generateCSVBarcode`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                data: JSON.parse(e.target.name),
+                quantity: quantity,
+                viewName: viewName
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.errorCode) {
+                    throw new Error(data.error);
+                }
+                alert(data.message);
+            })
+            .catch(err => alert(err.message));
+    }
+
+    const resetData = () => {
+        location.reload(true);
+    }
+
+    const loadLicenseInfo = () => {
+        fetch('/license-info')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.expiryDate) {
+                    document.getElementById('show-license').innerHTML = `<div style="color: red;">License not found or invalid.</div>`;
+                    return;
+                }
+
+                const expiryDate = new Date(data.expiryDate);
+                const today = new Date();
+
+                // Calculate days remaining
+                const timeDiff = expiryDate - today;
+                const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+
+                if (daysRemaining <= 10) {
+
+                    let message = `🔒 License expires in ${daysRemaining} day(s).`;
+
+                    const div = document.getElementById("show-license");
+                    div.innerText = message;
+                    div.style.fontWeight = "bold";
+                    div.style.fontSize = "1.2rem";
+                    div.style.color = "red";
+                    div.style.marginBottom = "1rem";
+                    div.style.textAlign = "center";
+                } else {
+                    let message = `${daysRemaining}`;
+                    const div = document.getElementById("show-license");
+                    div.innerText = message;
+                    div.style.fontWeight = "bold";
+                    div.style.fontSize = "1.2rem";
+                    div.style.color = daysRemaining > 10 ? "green" : daysRemaining >= 0 ? "red" : "red";
+                    div.style.marginBottom = "1rem";
+                    div.style.textAlign = "left";
+                    div.style.backgroundColor = "#bbecbb";
+                    div.style.padding = "8px";
+                    div.style.borderRadius = "20%";
+                    div.style.display = "inline-block";
+                    div.style.position = "absolute";
+                    div.style.top = "1.2rem";
+                    div.style.left = "1.2rem";
+                    div.style.color = "green";
+                }
+            })
+            .catch(err => {
+                document.getElementById("show-license").innerText = "Failed to fetch license info.";
+                console.error(err);
+            });
+    }
+</script>
