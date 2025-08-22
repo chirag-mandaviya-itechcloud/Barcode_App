@@ -22,9 +22,9 @@ export function getSequelizeFromConfig() {
 
     if (config.DB_TYPE === 'postgres') {
         return new Sequelize(
-            config.DB_NAME,
-            config.DB_USER,
-            config.DB_PASSWORD,
+            config.DB_NAME.toString(),
+            config.DB_USER.toString(),
+            config.DB_PASSWORD.toString(),
             {
                 dialect: "postgres",
                 host: config.DB_HOST.toString(),
@@ -41,15 +41,19 @@ export function getSequelizeFromConfig() {
         );
     } else {
         return new Sequelize(
-            config.DB_NAME,
-            config.DB_USER,
-            config.DB_PASSWORD,
+            config.DB_NAME.toString(),
+            config.DB_USER.toString(),
+            config.DB_PASSWORD.toString(),
             {
                 dialect: 'mssql',
+                host: config.DB_HOST.toString().split('\\')[0] || '',
+                // port: config.DB_PORT,
                 dialectOptions: {
                     options: {
+                        appName: 'BarcodeApp',
+                        trustServerCertificate: true,
                         encrypt: false,
-                        instanceName: config.DB_HOST
+                        instanceName: config.DB_HOST.toString().split('\\')[1] || ''
                     }
                 },
                 logging: (msg) => logger.info(msg),
